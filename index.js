@@ -30,13 +30,22 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
 
+    //............................... DATABASE COLLECTION.......................................//
     const teacherCollection = client.db('magicDb').collection('teacher')
-    app.get('/teacher',async(req,res)=>{
-        const result = await teacherCollection.find().toArray()
-        res.send(result)
+    const usersCollection = client.db('magicDb').collection('users')
+
+
+
+    app.get('/teacher', async (req, res) => {
+      const result = await teacherCollection.find().toArray()
+      res.send(result)
     })
 
-
+    app.post('/users', async (req, res) => {
+      const item = req.body
+      const result = await usersCollection.insertOne(item)
+      res.send(result)
+    })
 
 
 
@@ -58,10 +67,10 @@ run().catch(console.dir);
 
 
 
-app.get('/',(req,res)=>{
-    res.send("MAGIC IS HAPPENING")
+app.get('/', (req, res) => {
+  res.send("MAGIC IS HAPPENING")
 })
 
-app.listen(port,()=>{
-    console.log(`MAGIC IS HAPPENING ON THE PORT ${port}`)
+app.listen(port, () => {
+  console.log(`MAGIC IS HAPPENING ON THE PORT ${port}`)
 })
