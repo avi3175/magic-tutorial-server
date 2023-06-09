@@ -33,13 +33,47 @@ async function run() {
     //............................... DATABASE COLLECTION.......................................//
     const teacherCollection = client.db('magicDb').collection('teacher')
     const usersCollection = client.db('magicDb').collection('users')
+    const classCollection = client.db('magicDb').collection('class')
+
+    //............................... DATABASE COLLECTION.......................................//
 
 
 
+//////////////////////////////////////////////////////////////////////////////////////////////
+//****************************************GET*******************************************//////
+//////////////////////////////////////////////////////////////////////////////////////////////
     app.get('/teacher', async (req, res) => {
       const result = await teacherCollection.find().toArray()
       res.send(result)
+
     })
+
+    app.get('/users', async (req, res) => {
+      const email = req.query.email
+      if (!email) {
+        res.send([])
+      }
+      const query = { email: email }
+      const result = await usersCollection.find(query).toArray()
+      res.send(result)
+    })
+
+    app.get('/class', async (req, res) => {
+      const result = await teacherCollection.find().toArray()
+      res.send(result)
+
+    })
+
+    // app.get('/users', async (req, res) => {
+    //   const result = await usersCollection.find().toArray()
+    //   res.send(result)
+    // })
+
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//****************************************GET*******************************************//
+//////////////////////////////////////////////////////////////////////////////////////////
+
 
     app.post('/users', async (req, res) => {
       const item = req.body
@@ -49,6 +83,7 @@ async function run() {
 
 
 
+   
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
