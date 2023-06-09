@@ -33,8 +33,8 @@ async function run() {
     //............................... DATABASE COLLECTION.......................................//
     const teacherCollection = client.db('magicDb').collection('teacher')
     const usersCollection = client.db('magicDb').collection('users')
-    const cartCollection = client.db('magicDb').collection('class')
-
+    const classCollection = client.db('magicDb').collection('class')
+    const cartCollection = client.db('magicDb').collection('cart')
     //............................... DATABASE COLLECTION.......................................//
 
 
@@ -48,34 +48,31 @@ async function run() {
 
     })
 
-    app.get('/users', async (req, res) => {
-      const email = req.query.email
-      if (!email) {
-        res.send([])
-      }
-      const query = { email: email }
-      const result = await usersCollection.find(query).toArray()
-      res.send(result)
-    })
-
-    app.get('/class', async (req, res) => {
-      const result = await teacherCollection.find().toArray()
-      res.send(result)
-
-    })
-
     // app.get('/users', async (req, res) => {
-    //   const result = await usersCollection.find().toArray()
+    //   const email = req.query.email
+    //   if (!email) {
+    //     res.send([])
+    //   }
+    //   const query = { email: email }
+    //   const result = await usersCollection.find(query).toArray()
     //   res.send(result)
     // })
+
+    app.get('/class', async (req, res) => {
+      const result = await classCollection.find().toArray()
+      res.send(result)
+
+    })
+
+    app.get('/users', async (req, res) => {
+      const result = await usersCollection.find().toArray()
+      res.send(result)
+    })
 
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //****************************************GET*******************************************//
 //////////////////////////////////////////////////////////////////////////////////////////
-
-
-
 
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -89,15 +86,17 @@ async function run() {
     })
 
 
-    app.post('/carts', async (req, res) => {
+    app.post('/cart', async (req, res) => {
       const item = req.body
       const result = await cartCollection.insertOne(item)
       res.send(result)
     })
-
+ 
+    
 //////////////////////////////////////////////////////////////////////////////////////////
 //****************************************POST*******************************************//
 //////////////////////////////////////////////////////////////////////////////////////////
+
 
    
 
