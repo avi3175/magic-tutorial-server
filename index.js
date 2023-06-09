@@ -33,7 +33,7 @@ async function run() {
     //............................... DATABASE COLLECTION.......................................//
     const teacherCollection = client.db('magicDb').collection('teacher')
     const usersCollection = client.db('magicDb').collection('users')
-    const classCollection = client.db('magicDb').collection('class')
+    const cartCollection = client.db('magicDb').collection('class')
 
     //............................... DATABASE COLLECTION.......................................//
 
@@ -75,6 +75,13 @@ async function run() {
 //////////////////////////////////////////////////////////////////////////////////////////
 
 
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//****************************************POST*******************************************//
+//////////////////////////////////////////////////////////////////////////////////////////
+
     app.post('/users', async (req, res) => {
       const item = req.body
       const result = await usersCollection.insertOne(item)
@@ -82,6 +89,15 @@ async function run() {
     })
 
 
+    app.post('/carts', async (req, res) => {
+      const item = req.body
+      const result = await cartCollection.insertOne(item)
+      res.send(result)
+    })
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//****************************************POST*******************************************//
+//////////////////////////////////////////////////////////////////////////////////////////
 
    
 
