@@ -134,6 +134,22 @@ async function run() {
     })
 
 
+
+    app.get('/users/admin/:id', verifyJWT, async(req,res)=>{
+      const email = req.params.email
+
+
+      if(req.decoded.email !== email){
+        res.send({admin:false})
+      }
+
+
+      const query = {email:email}
+      const user = await usersCollection.findOne(query)
+      const result = {admin:user?.role==='admin'}
+      res.send(result)
+    })
+
     //////////////////////////////////////////////////////////////////////////////////////////
     //****************************************GET*******************************************//
     //////////////////////////////////////////////////////////////////////////////////////////
