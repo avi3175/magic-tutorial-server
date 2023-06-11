@@ -156,12 +156,13 @@ async function run() {
 
 // SPECIAL GET //
 
-    app.get('/users/admin/:id', verifyJWT, async(req,res)=>{
-      const email = req.params.email
+    app.get('/users/admin/:id', verifyJWT ,  async(req,res)=>{
+      const email = req.params.id
 
 
       if(req.decoded.email !== email){
         res.send({admin:false})
+        return 
       }
 
 
