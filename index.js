@@ -157,8 +157,8 @@ async function run() {
       res.send(result)
 
     })
-
-    app.get('/users',verifyJWT,verifyAdmin,verifyInstructor, async (req, res) => {
+//PROBLEM//
+    app.get('/users',verifyJWT,verifyAdmin, async (req, res) => {
       const result = await usersCollection.find().toArray()
       res.send(result)
     })
