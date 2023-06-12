@@ -330,7 +330,28 @@ async function run() {
 
         $set: {
 
-          role: "approve"
+          status: "approve"
+
+        },
+
+      };
+
+      const result = await classCollection.updateOne(filter, updateDoc)
+      res.send(result)
+    })
+
+
+
+
+
+    app.patch('/class/denied/:id', async (req, res) => {
+      const id = req.params.id
+      const filter = { _id: new ObjectId(id) }
+      const updateDoc = {
+
+        $set: {
+
+          status: "denied"
 
         },
 
