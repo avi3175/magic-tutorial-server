@@ -94,26 +94,26 @@ async function run() {
 
     })
 
-    const verifyAdmin = async(req,res,next) =>{
-        const email = req.decoded.email
-        const query = {email:email}
-        const user = await usersCollection.findOne(query)
-        if(user?.role !== 'admin'){
-         return  res.status(403).send({error:true,massage:"forbidden message"})
-        }
-        next()
+    const verifyAdmin = async (req, res, next) => {
+      const email = req.decoded.email
+      const query = { email: email }
+      const user = await usersCollection.findOne(query)
+      if (user?.role !== 'admin') {
+        return res.status(403).send({ error: true, massage: "forbidden message" })
+      }
+      next()
     }
 
 
-    const verifyInstructor = async(req,res,next) =>{
+    const verifyInstructor = async (req, res, next) => {
       const email = req.decoded.email
-      const query = {email:email}
+      const query = { email: email }
       const user = await usersCollection.findOne(query)
-      if(user?.role !== 'instructor'){
-       return  res.status(403).send({error:true,massage:"forbidden message"})
+      if (user?.role !== 'instructor') {
+        return res.status(403).send({ error: true, massage: "forbidden message" })
       }
       next()
-  }
+    }
 
 
 
@@ -126,7 +126,7 @@ async function run() {
 
     // HERE IS SUPPOSED TO USE THE VERIFY SCARY JWT TOKEN
 
-    app.get('/cart' , verifyJWT,  async (req, res) => {
+    app.get('/cart', verifyJWT, async (req, res) => {
       const email = req.query.email
       if (!email) {
         res.send([])
@@ -134,8 +134,8 @@ async function run() {
 
 
       const decodedEmail = req.decoded.email
-      if(email !== decodedEmail){
-        return res.status(403).send({error:true,message:"unauthorized access"})
+      if (email !== decodedEmail) {
+        return res.status(403).send({ error: true, message: "unauthorized access" })
       }
 
 
@@ -152,51 +152,80 @@ async function run() {
       res.send(result)
     })
 
+
+
+
+
     app.get('/class', async (req, res) => {
       const result = await classCollection.find().toArray()
       res.send(result)
 
     })
-//PROBLEM//
-    app.get('/users',verifyJWT,verifyAdmin, async (req, res) => {
+
+
+    // app.get('/class' , async (req, res) => {
+    //   const email = req.query.email
+    //   if (!email) {
+    //     res.send([])
+    //   }
+
+    //   const query = { email: email }
+    //   const result = await cartCollection.find(query).toArray()
+    //   res.send(result)
+    // })
+
+
+
+
+
+
+
+
+
+
+
+
+
+    //PROBLEM//
+    app.get('/users', verifyJWT, verifyAdmin, async (req, res) => {
       const result = await usersCollection.find().toArray()
       res.send(result)
     })
 
-// SPECIAL GET //
+    // SPECIAL GET //
 
-    app.get('/users/admin/:id', verifyJWT ,  async(req,res)=>{
+    app.get('/users/admin/:id', verifyJWT, async (req, res) => {
       const email = req.params.id
 
 
-      if(req.decoded.email !== email){
-        res.send({admin:false})
-        return 
+      if (req.decoded.email !== email) {
+        res.send({ admin: false })
+        return
       }
 
 
-      const query = {email:email}
+      const query = { email: email }
       const user = await usersCollection.findOne(query)
-      const result = {admin:user?.role==='admin'}
+      const result = { admin: user?.role === 'admin' }
       res.send(result)
     })
 
 
     //SPECIAL GET ANOTHER
 
-    app.get('/users/instructor/:id', verifyJWT ,  async(req,res)=>{
+    app.get('/users/instructor/:id', verifyJWT, async (req, res) => {
       const email = req.params.id
 
 
-      if(req.decoded.email !== email){
-        res.send({admin:false})
-        return 
+      if (req.decoded.email !== email) {
+        res.send({ admin: false })
+        return
       }
 
 
-      const query = {email:email}
+      const query = { email: email }
       const user = await usersCollection.findOne(query)
-      const result = {instructor:user?.role==='instructor'}
+      const result = { instructor: user?.role === 'instructor' }
       res.send(result)
     })
 
@@ -235,11 +264,11 @@ async function run() {
 
 
 
-   app.post('/class',async(req,res)=>{
+    app.post('/class', async (req, res) => {
       const newItem = req.body
       const result = await classCollection.insertOne(newItem)
       res.send(result)
-   }) 
+    })
 
 
 
@@ -294,7 +323,22 @@ async function run() {
 
 
 
+    app.patch('/class/approve/:id', async (req, res) => {
+      const id = req.params.id
+      const filter = { _id: new ObjectId(id) }
+      const updateDoc = {
 
+        $set: {
+
+          role: "approve"
+
+        },
+
+      };
+
+      const result = await classCollection.updateOne(filter, updateDoc)
+      res.send(result)
+    })
 
 
 
