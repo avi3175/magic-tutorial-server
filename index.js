@@ -1,5 +1,6 @@
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const express = require('express')
+const stripe = require('stripe')(process.env.PAYMENT_SECRET_KEY)
 const app = express()
 const cors = require('cors')
 const jwt = require('jsonwebtoken');
@@ -250,6 +251,13 @@ async function run() {
 
     app.post('/users', async (req, res) => {
       const item = req.body
+      const query = {email:user.email}
+      const existingUser = await usersCollection.findOne(query)
+
+      if(existingUser){
+        return res.send({message:'user already exist'})
+      }
+
       const result = await usersCollection.insertOne(item)
       res.send(result)
     })
@@ -272,123 +280,139 @@ async function run() {
 
 
 
+    // PAYMENT//
 
 
-    //////////////////////////////////////////////////////////////////////////////////////////
-    //****************************************POST*******************************************//
-    //////////////////////////////////////////////////////////////////////////////////////////
 
+    app.post("/create-payment-intent", async (req, res) => {
+      const { price } = req.body;
+      const amount = price*100
 
-    //////////////////////////////////////////////////////////////////////////////////////////
-    //****************************************PATCH*******************************************//
-    //////////////////////////////////////////////////////////////////////////////////////////
+      // Create a PaymentIntent with the order amount and currency
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: amount,
+        currency: "usd",
+        payment_method_types: ['card']
+      });
+      res.send({
+        clientSecret: paymentIntent.client_secret,
+      });
+    });
+    
+    
 
 
-    app.patch('/users/admin/:id', async (req, res) => {
-      const id = req.params.id
-      const filter = { _id: new ObjectId(id) }
-      const updateDoc = {
 
-        $set: {
 
-          role: "admin"
 
-        },
+      //////////////////////////////////////////////////////////////////////////////////////////
+      //****************************************POST*******************************************//
+      //////////////////////////////////////////////////////////////////////////////////////////
 
-      };
 
-      const result = await usersCollection.updateOne(filter, updateDoc)
-      res.send(result)
-    })
+      //////////////////////////////////////////////////////////////////////////////////////////
+      //****************************************PATCH*******************************************//
+      //////////////////////////////////////////////////////////////////////////////////////////
 
 
+      app.patch('/users/admin/:id', async (req, res) => {
+        const id = req.params.id
+        const filter = { _id: new ObjectId(id) }
+        const updateDoc = {
 
+          $set: {
 
-    app.patch('/users/instructor/:id', async (req, res) => {
-      const id = req.params.id
-      const filter = { _id: new ObjectId(id) }
-      const updateDoc = {
+            role: "admin"
 
-        $set: {
+          },
 
-          role: "instructor"
+        };
 
-        },
+        const result = await usersCollection.updateOne(filter, updateDoc)
+        res.send(result)
+      })
 
-      };
 
-      const result = await usersCollection.updateOne(filter, updateDoc)
-      res.send(result)
-    })
 
 
+      app.patch('/users/instructor/:id', async (req, res) => {
+        const id = req.params.id
+        const filter = { _id: new ObjectId(id) }
+        const updateDoc = {
 
-    app.patch('/class/approve/:id', async (req, res) => {
-      const id = req.params.id
-      const filter = { _id: new ObjectId(id) }
-      const updateDoc = {
+          $set: {
 
-        $set: {
+            role: "instructor"
 
-          status: "approve"
+          },
 
-        },
+        };
 
-      };
+        const result = await usersCollection.updateOne(filter, updateDoc)
+        res.send(result)
+      })
 
-      const result = await classCollection.updateOne(filter, updateDoc)
-      res.send(result)
-    })
 
 
+      app.patch('/class/approve/:id', async (req, res) => {
+        const id = req.params.id
+        const filter = { _id: new ObjectId(id) }
+        const updateDoc = {
 
+          $set: {
 
+            status: "approve"
 
-    app.patch('/class/denied/:id', async (req, res) => {
-      const id = req.params.id
-      const filter = { _id: new ObjectId(id) }
-      const updateDoc = {
+          },
 
-        $set: {
+        };
 
-          status: "denied"
+        const result = await classCollection.updateOne(filter, updateDoc)
+        res.send(result)
+      })
 
-        },
 
-      };
 
-      const result = await classCollection.updateOne(filter, updateDoc)
-      res.send(result)
-    })
 
 
+      app.patch('/class/denied/:id', async (req, res) => {
+        const id = req.params.id
+        const filter = { _id: new ObjectId(id) }
+        const updateDoc = {
 
+          $set: {
 
+            status: "denied"
 
+          },
 
-    //////////////////////////////////////////////////////////////////////////////////////////
-    //****************************************PATCH*******************************************//
-    //////////////////////////////////////////////////////////////////////////////////////////
+        };
 
+        const result = await classCollection.updateOne(filter, updateDoc)
+        res.send(result)
+      })
 
-    //////////////////////////////////////////////////////////////////////////////////////////
-    //****************************************DELETE*******************************************//
-    //////////////////////////////////////////////////////////////////////////////////////////  
 
 
-    app.delete('/cart/:id', async (req, res) => {
-      const id = req.params.id
-      const query = { _id: new ObjectId(id) }
-      const result = await cartCollection.deleteOne(query)
-      res.send(result)
-    })
 
 
 
+      //////////////////////////////////////////////////////////////////////////////////////////
+      //****************************************PATCH*******************************************//
+      //////////////////////////////////////////////////////////////////////////////////////////
 
 
+      //////////////////////////////////////////////////////////////////////////////////////////
+      //****************************************DELETE*******************************************//
+      //////////////////////////////////////////////////////////////////////////////////////////  
 
 
+      app.delete('/cart/:id', async (req, res) => {
+        const id = req.params.id
+        const query = { _id: new ObjectId(id) }
+        const result = await cartCollection.deleteOne(query)
+        res.send(result)
+      })
 
 
 
@@ -402,18 +426,25 @@ async function run() {
 
 
 
-    //////////////////////////////////////////////////////////////////////////////////////////
-    //****************************************PATCH*******************************************//
-    //////////////////////////////////////////////////////////////////////////////////////////
 
-    // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
-  } finally {
-    // Ensures that the client will close when you finish/error
-    // await client.close();
+
+
+
+
+
+
+      //////////////////////////////////////////////////////////////////////////////////////////
+      //****************************************PATCH*******************************************//
+      //////////////////////////////////////////////////////////////////////////////////////////
+
+      // Send a ping to confirm a successful connection
+      await client.db("admin").command({ ping: 1 });
+      console.log("Pinged your deployment. You successfully connected to MongoDB!");
+    } finally {
+      // Ensures that the client will close when you finish/error
+      // await client.close();
+    }
   }
-}
 run().catch(console.dir);
 
 
@@ -423,10 +454,10 @@ run().catch(console.dir);
 
 
 
-app.get('/', (req, res) => {
-  res.send("MAGIC IS HAPPENING")
-})
+  app.get('/', (req, res) => {
+    res.send("MAGIC IS HAPPENING")
+  })
 
-app.listen(port, () => {
-  console.log(`MAGIC IS HAPPENING ON THE PORT ${port}`)
-})
+  app.listen(port, () => {
+    console.log(`MAGIC IS HAPPENING ON THE PORT ${port}`)
+  })
